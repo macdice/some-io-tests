@@ -3,13 +3,13 @@ and log some simple results.  This isn't real benchmarking and isn't on server
 class hardware, so take it with a pinch of salt, lime and tequila.
 
 For ZFS, the following experimental fadvise support patch is applied (FreeBSD
-legacy version and ZoF version):
+legacy version and OpenZFS FreeBSD/Linux version):
 
    https://github.com/freebsd/freebsd/compare/master...macdice:fadvise
    https://github.com/zfsonfreebsd/ZoF/compare/projects/zfsbsd...macdice:fadvise
 
-The tests are run on a couple of different machines with 1GB or 4GB of memory,
-and a 10GB data file created with dd if=/dev/zero of=teng bs=1K count=10M.
+The tests are run on a couple of different machines with 1GB or 4GB of memory and
+NVMEe storage, using a 10GB data file so it doesn't fit in memory.
 
 Experiment 2019-12-23: Does prefetch interfere with forward sequential prefetch heuristics?
 ===========================================================================================
