@@ -14,6 +14,8 @@ Ingredients:
    disable prefetching due to small RAM)
  * FreeBSD 13-CURRENT patched with experimental ZFS fadvise support:
    https://github.com/freebsd/freebsd/compare/master...macdice:fadvise
+   ... or if you prefer a patch for ZoF AKA OpenZFS:
+   https://github.com/zfsonfreebsd/ZoF/compare/projects/zfsbsd...macdice:fadvise
  * a ZFS dataset created with 8kb records (as often recommended for PostgreSQL, not sure
    what the effect of this really is) and no compression
  * a 10GB file (much bigger than RAM)
