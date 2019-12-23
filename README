@@ -1,5 +1,107 @@
 Here I plan to collect some small programs for measuring various I/O effects.
 
+Experiment 2019-12-23: Does prefetch interfere with forward sequential prefetch heuristics?
+===========================================================================================
+
+Linux/ext4: yes, very much
+FreeBSD/zfs (patched as described below): probably not (maybe just syscall overhead)
+
+tmunro@debian10:~/projects/some-io-tests$ dd if=/dev/zero of=teng bs=1K count=10M
+10485760+0 records in
+10485760+0 records out
+10737418240 bytes (11 GB, 10 GiB) copied, 12.6184 s, 851 MB/s
+
+tmunro@debian10:~/projects/some-io-tests$ time ./sequential-read teng 0 1
+
+real    0m5.595s
+user    0m0.050s
+sys     0m2.708s
+
+tmunro@debian10:~/projects/some-io-tests$ time ./sequential-read teng 1 1
+
+real    1m22.506s
+user    0m1.091s
+sys     0m31.512s
+
+
+tmunro@freebsd13:~/projects/some-io-tests $ time ./sequential-read /tank1/test/teng 0
+       25.03 real         0.07 user        24.28 sys
+
+tmunro@freebsd13:~/projects/some-io-tests $ time ./sequential-read /tank1/test/teng 1
+       28.06 real         0.13 user        27.38 sys
+
+(These numbers are quite repeatable, I'm just showing one result for brevity; the ext4 and zfs results can't be compared, rather different systems, that isn't the point here).
+
+
+Experiment 2019-12-23: Does prefetching backwards help?
+=======================================================
+
+Linux/ext4: yes
+FreeBSD/zfs (patched): yes
+
+$ ./sequential-read /tank1/test/teng 0 -1
+
+Very bad:
+
+  sequential-read                                     pread ns                                          
+           value  ------------- Distribution ------------- count    
+           65536 |                                         0        
+          131072 |@                                        1594     
+          262144 |@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    42704    
+          524288 |@@                                       2230     
+         1048576 |                                         130      
+         2097152 |                                         10       
+         4194304 |                                         3        
+         8388608 |                                         0        
+        16777216 |                                         1        
+        33554432 |                                         0    
+
+And with prefetching:
+
+$ ./sequential-read /tank1/test/teng 20 -1
+
+Very good:
+
+  sequential-read                                     posix_fadvise ns
+           value  ------------- Distribution ------------- count
+            1024 |                                         0
+            2048 |                                         2559
+            4096 |@@@@@@@@@@@@@@@@@@@@@@                   182352
+            8192 |@@@@@@@@@@@                              94481
+           16384 |@@@@@@                                   48742
+           32768 |@                                        8443
+           65536 |                                         797
+          131072 |                                         426
+          262144 |                                         325
+          524288 |                                         148
+         1048576 |                                         55
+         2097152 |                                         9
+         4194304 |                                         0
+
+  sequential-read                                     pread ns
+           value  ------------- Distribution ------------- count
+            1024 |                                         0
+            2048 |                                         1
+            4096 |@@@@@@@@@@@@@@@@@@@@@@@@@                213351
+            8192 |@@@@@@@@                                 67696
+           16384 |@@@@                                     30043
+           32768 |@                                        4272
+           65536 |@                                        4713
+          131072 |@                                        7630
+          262144 |@                                        8522
+          524288 |                                         1775
+         1048576 |                                         174
+         2097152 |                                         31
+         4194304 |                                         6
+         8388608 |                                         0
+        16777216 |                                         1
+        33554432 |                                         0
+
+Similar effects are visible on Linux/ext4.
+
+Conclusion: PostgreSQL should should still generate fadvise() calls for
+backwards scans, but suppress any desire to generate forwards ones.
+
 Experiment 2019-12-22: ZFS with explicit prefetching of random pages
 ====================================================================
 
