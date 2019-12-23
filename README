@@ -1,12 +1,15 @@
-Here I plan to collect some small programs for measuring various I/O effects.
+Here I plan to collect some small programs for measuring various I/O effects,
+and log some simple results.  This isn't real benchmarking and isn't on server
+class hardware, so take it with a pinch of salt, lime and tequila.
 
-For ZFS, the folowing experimental fadvise support patch is applied (FreeBSD
+For ZFS, the following experimental fadvise support patch is applied (FreeBSD
 legacy version and ZoF version):
+
    https://github.com/freebsd/freebsd/compare/master...macdice:fadvise
    https://github.com/zfsonfreebsd/ZoF/compare/projects/zfsbsd...macdice:fadvise
 
 The tests are run on a couple of different machines with 1GB or 4GB of memory,
-and a 10GB data file created with  dd if=/dev/zero of=teng bs=1K count=10M.
+and a 10GB data file created with dd if=/dev/zero of=teng bs=1K count=10M.
 
 Experiment 2019-12-23: Does prefetch interfere with forward sequential prefetch heuristics?
 ===========================================================================================
