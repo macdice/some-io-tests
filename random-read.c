@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,7 +56,7 @@ int main(int argc, char *argv[])
 	/* start prefetching, if requested */
 	for (int slot = 0; slot < slots; ++slot) {
 		queue[slot] = (random() % blocks) * BLOCK_SIZE;
-		if (distance > 0 && posix_fadvise(fd, queue[slot], BLOCK_SIZE, POSIX_FADV_WILLNEED) != 0) {
+		if (distance > 0 && (errno = posix_fadvise(fd, queue[slot], BLOCK_SIZE, POSIX_FADV_WILLNEED)) != 0) {
 			perror("posix_fadvise");
 			return EXIT_FAILURE;
 		}
@@ -76,7 +77,7 @@ int main(int argc, char *argv[])
 		queue[slot] = (random() % blocks) * BLOCK_SIZE;
 
 		/* prefetch one more */
-		if (distance > 0 && posix_fadvise(fd, queue[slot], BLOCK_SIZE, POSIX_FADV_WILLNEED) != 0) {
+		if (distance > 0 && (errno = posix_fadvise(fd, queue[slot], BLOCK_SIZE, POSIX_FADV_WILLNEED)) != 0) {
 			perror("posix_fadvise");
 			return EXIT_FAILURE;
 		}
