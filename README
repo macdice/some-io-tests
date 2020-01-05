@@ -3,10 +3,11 @@ and log some simple results.  This isn't real benchmarking and isn't on server
 class hardware, so take it with a pinch of salt, lime and tequila.
 
 For ZFS, the following experimental fadvise support patch is applied (FreeBSD
-legacy version and OpenZFS FreeBSD/Linux version):
+legacy and OpenZFS FreeBSD/Linux versions):
 
    https://github.com/freebsd/freebsd/compare/master...macdice:fadvise
    https://github.com/zfsonfreebsd/ZoF/compare/projects/zfsbsd...macdice:fadvise
+   https://github.com/zfsonlinux/zfs/pull/9807
 
 The tests are run on a couple of different machines with 1GB or 4GB of memory and
 NVMEe storage, using a 10GB data file so it doesn't fit in memory.
