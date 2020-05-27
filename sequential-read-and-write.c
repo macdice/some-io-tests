@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 		if (offset > DISTANCE) {
 			rc = pwrite(fd, buf, sizeof(buf), offset - DISTANCE);
 			if (rc < 0) {
-				perror("pread");
+				perror("pwrite");
 				return EXIT_FAILURE;
 			} else if (rc < sizeof(buf)) {
 				fprintf(stderr, "short write\n");
