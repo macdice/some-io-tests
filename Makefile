@@ -1,4 +1,7 @@
-all: sequential-read random-read
+all: sequential-read random-read sequential-read-and-write
+
+sequential-read-and-write: sequential-read-and-write.c
+	$(CC) sequential-read-and-write.c -o sequential-read-and-write
 
 sequential-read: sequential-read.c
 	$(CC) sequential-read.c -o sequential-read
