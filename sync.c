@@ -14,15 +14,19 @@ usage(const char *exec)
 
 int main(int argc, char *argv[])
 {
-	char buffer[8192] = "hello world";
 	const char *path = NULL;
 	bool do_fsync = false;
 	bool do_fdatasync = false;
 	enum { MODE_SYNC, MODE_DSYNC, MODE_FDATASYNC, MODE_FSYNC } mode = MODE_FSYNC;
+	bool direct = false;
 	bool append = false;
 	int flags;
 	int fd;
 	int i;
+	int loops = 1000;
+	int size = 8192;
+	int offset = 0;
+	char *buffer;
 
 	for (i = 1; i < argc; ++i) {
 		if (strcmp(argv[i], "--o-sync") == 0)
@@ -33,10 +37,18 @@ int main(int argc, char *argv[])
 			mode = MODE_FSYNC;
 		else if (strcmp(argv[i], "--fdatasync") == 0)
 			mode = MODE_FDATASYNC;
+		else if (strcmp(argv[i], "--direct") == 0)
+			direct = true;
 		else if (strcmp(argv[i], "--overwrite") == 0)
 			append = false;
 		else if (strcmp(argv[i], "--append") == 0)
 			append = true;
+		else if (strcmp(argv[i], "--loops") == 0 && i + 1 < argc)
+			loops = atoi(argv[++i]);
+		else if (strcmp(argv[i], "--size") == 0 && i + 1 < argc)
+			size = atoi(argv[++i]);
+		else if (strcmp(argv[i], "--offset") == 0 && i + 1 < argc)
+			offset = atoi(argv[++i]);
 		else if (argv[i][0] != '-' && path == NULL)
 			path = argv[i];
 		else
@@ -45,6 +57,9 @@ int main(int argc, char *argv[])
 	if (path == NULL)
 		usage(argv[0]);
 
+	buffer = malloc(size);
+	memset(buffer, '.', size);
+
 	if (mode == MODE_SYNC)
 		flags = O_SYNC;
 	else if (mode == MODE_DSYNC)
@@ -52,19 +67,22 @@ int main(int argc, char *argv[])
 	else
 		flags = 0;
 
+	if (direct)
+		flags |= O_DIRECT;
+
 	fd = open(path, O_RDWR | flags);
 	if (fd < 0) {
 		perror("open");
 		return 1;
 	}
 
-	for (int i = 0; i < 1000; ++i) {
+	for (int i = 0; i < loops; ++i) {
 		int rc;
 
 		if (append)
-			rc = write(fd, buffer, sizeof(buffer));
+			rc = write(fd, buffer, size);
 		else
-			rc = pwrite(fd, buffer, sizeof(buffer), 0);
+			rc = pwrite(fd, buffer, size, offset);
 		if (rc < 0) {
 			perror(append ? "write" : "pwrite");
 			return 1;
