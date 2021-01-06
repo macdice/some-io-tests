@@ -69,6 +69,8 @@ int main(int argc, char *argv[])
 
 	if (direct)
 		flags |= O_DIRECT;
+	if (append)
+		flags |= O_APPEND;
 
 	fd = open(path, O_RDWR | flags);
 	if (fd < 0) {
