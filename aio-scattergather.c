@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <aio.h>
 #include <errno.h>
 #include <fcntl.h>
