@@ -1,4 +1,4 @@
-all: sequential-read random-read sequential-read-and-write sync aio-scattergather
+all: sequential-read random-read sequential-read-and-write sync aio-scattergather concurrent-read-write
 
 %: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CC) -o $@ $< $(CFLAGS)
