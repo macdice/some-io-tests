@@ -19,7 +19,7 @@ writer(void)
 	memset(buffer1, '1', sizeof(buffer1));
 	memset(buffer2, '2', sizeof(buffer2));
 
-	fd = open("test-file", O_WRONLY | O_CREAT);
+	fd = open("test-file", O_WRONLY | O_CREAT, 0644);
 	if (fd < 0) {
 		perror("open");
 		exit(EXIT_FAILURE);
